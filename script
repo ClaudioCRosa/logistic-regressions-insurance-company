@@ -1,0 +1,42 @@
+#The objective of this script is to calculate the probability of someone with a car insurance (that answered the survey) is/becomes a customer of an insurance company based on their answers to the survey
+
+#Importing libraries
+import pandas as pd
+import numpy as np
+#importing the data
+df = pd.read_csv("survey.csv")
+
+#The dataset is full of categorical data, to work with it, we need dummy variables
+df2 = pd.get_dummies(df)
+print(df2.head())
+
+#Preparing the regression
+col_length = len(df2.columns)
+X = df2.iloc[:, 1:col_length]
+Y = df2.iloc[:, 0:1]
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.2, random_state = 1)
+
+from sklearn.linear_model import LogisticRegression
+
+reg = LogisticRegression(max_iter=10000)
+reg.fit(X_train, Y_train)
+
+reg.predict(X_test)
+reg.score(X_test, Y_test)
+
+#The reg.score shows an R2 value of 82% meaning that the modle is able to explain 82% of the fluctuations
+
+#Finally a table summerising the results, namely the coeficients. Where we can see how likely a client is of being a member of Hedvig, given their answers in the survey. A way to improve this work would have been to calculate the p-values for the coefficients so we can learn about the statistical significance of the results.
+coef = list(reg.coef_.reshape(33))
+cols = list(np.array(df2.columns[1:]))
+
+
+col_name = "Coefficients"
+
+df3 = pd.DataFrame({"coeficients": coef, "Answers": cols}, columns=["Answers", "coeficients"])
+
+print(df3)
+
+#The results are unavailable due to an NDA
